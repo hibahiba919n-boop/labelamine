@@ -7,7 +7,7 @@ import {
   Pin,
   useAdvancedMarkerRef,
 } from '@vis.gl/react-google-maps';
-import { ExternalLink, MapPin } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 interface LabMapProps {
   labName: string;
@@ -76,27 +76,37 @@ export function LabMap(props: LabMapProps) {
   const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY as string | undefined;
 
   if (!apiKey) {
+    const embedUrl = `https://maps.google.com/maps?q=${encodeURIComponent(
+      `${props.latitude},${props.longitude}`
+    )}&z=16&output=embed&hl=fr`;
+
     return (
-      <div className="w-full h-[380px] md:h-[440px] rounded-xl border border-[#DCE7EB] bg-[#EDF5F7] flex flex-col items-center justify-center p-6 text-center gap-4">
-        <div className="w-12 h-12 rounded-xl bg-white border border-[#DCE7EB] flex items-center justify-center text-[#0E8F9F]">
-          <MapPin className="w-6 h-6" />
+      <div className="relative w-full h-[380px] md:h-[440px] rounded-xl overflow-hidden border border-[#DCE7EB] bg-[#EDF5F7]">
+        <iframe
+          title={`Carte Google Maps — ${props.labName}`}
+          src={embedUrl}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          className="w-full h-full border-0"
+          allowFullScreen
+        />
+        <div className="absolute bottom-3 start-3 end-3 sm:end-auto sm:max-w-xs bg-white/95 backdrop-blur-sm border border-[#DCE7EB] rounded-lg p-3 shadow-sm flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="font-semibold text-xs text-[#173247] truncate">
+              {props.labName}
+            </p>
+            <p className="text-[11px] text-[#586873] truncate">{props.address}</p>
+          </div>
+          <a
+            href={props.googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md bg-[#173247] hover:bg-[#0E8F9F] text-white text-[11px] font-semibold whitespace-nowrap shrink-0 transition-colors"
+          >
+            <span>Itinéraire</span>
+            <ExternalLink className="w-3 h-3" aria-hidden="true" />
+          </a>
         </div>
-        <div className="space-y-1 max-w-sm">
-          <p className="font-semibold text-[#173247]">{props.labName}</p>
-          <p className="text-sm text-[#586873]">{props.address}</p>
-          <p className="text-xs font-mono text-[#586873]">
-            {props.latitude.toFixed(6)}, {props.longitude.toFixed(6)}
-          </p>
-        </div>
-        <a
-          href={props.googleMapsUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#173247] text-white text-sm font-medium hover:bg-[#0E8F9F] transition-colors"
-        >
-          Voir l’itinéraire sur Google Maps
-          <ExternalLink className="w-4 h-4" />
-        </a>
       </div>
     );
   }
