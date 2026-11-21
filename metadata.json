@@ -1,0 +1,6 @@
+{
+  "name": "Laboratoires d'analyses médicales El Amine",
+  "description": "Laboratoire de biologie médicale à Mostaganem (Algérie) : spécialités cliniques, catalogue d'examens, prélèvement à domicile et accès sécurisé aux résultats.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
