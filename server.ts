@@ -1,11 +1,9 @@
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import multer from 'multer';
 import { z } from 'zod';
-import { createServer as createViteServer } from 'vite';
-import { ensureSeeded } from './src/db/seed.ts';
+import { ensureSeeded } from './src/db/seed.js';
 import {
   createContactMessage,
   createExamination,
@@ -41,8 +39,8 @@ import {
   updateSpecialty,
   upsertAdminUser,
   upsertSetting,
-} from './src/db/repository.ts';
-import { isSupabaseServerConfigured, supabaseAdmin } from './src/lib/supabase-admin.ts';
+} from './src/db/repository.js';
+import { isSupabaseServerConfigured, supabaseAdmin } from './src/lib/supabase-admin.js';
 import {
   AuthRequest,
   bootstrapFirstAdmin,
@@ -51,12 +49,11 @@ import {
   loginLocalAdmin,
   requireAdmin,
   requireRoles,
-} from './src/middleware/auth.ts';
+} from './src/middleware/auth.js';
 
-dotenv.config();
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+if (!process.env.VERCEL) {
+  dotenv.config();
+}
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -290,6 +287,12 @@ ${routes
 // ==========================================
 app.get('/api/auth/config', async (_req, res) => {
   try {
+    if (!isSupabaseServerConfigured && !process.env.SQL_HOST) {
+      return res.status(503).json({
+        error:
+          'Variables serveur Supabase manquantes (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).',
+      });
+    }
     const status = await getAuthStatus();
     return res.json(status);
   } catch (error) {
@@ -386,6 +389,12 @@ app.post(
 // ==========================================
 app.get('/api/public/bootstrap', async (_req, res) => {
   try {
+    if (!isSupabaseServerConfigured && !process.env.SQL_HOST) {
+      return res.status(503).json({
+        error:
+          'Configuration serveur Supabase manquante sur Vercel : ajoutez SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans Environment Variables.',
+      });
+    }
     await ensureSeeded();
     const [settings, specRows, examRows, galleryRows, positionRows] =
       await Promise.all([
@@ -1277,13 +1286,14 @@ app.delete(
 // ==========================================
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.resolve(__dirname, 'dist');
+    const distPath = path.resolve(process.cwd(), 'dist');
     app.use(express.static(distPath));
     app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));

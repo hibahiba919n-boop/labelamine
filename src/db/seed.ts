@@ -1,13 +1,13 @@
 import { count } from 'drizzle-orm';
-import { db } from './index.ts';
+import { db } from './index.js';
 import {
   examinations,
   galleryPhotos,
   jobPositions,
   siteSettings,
   specialties,
-} from './schema.ts';
-import { isSupabaseServerConfigured, supabaseAdmin } from '../lib/supabase-admin.ts';
+} from './schema.js';
+import { isSupabaseServerConfigured, supabaseAdmin } from '../lib/supabase-admin.js';
 
 let seedPromise: Promise<void> | null = null;
 
@@ -442,23 +442,26 @@ const DEFAULT_JOB_POSITIONS = [
 async function runSupabaseSeed() {
   if (!supabaseAdmin) return;
 
-  const { count: settingsCount } = await supabaseAdmin
+  const { count: settingsCount, error: settingsErr } = await supabaseAdmin
     .from('site_settings')
     .select('id', { count: 'exact', head: true });
+  if (settingsErr) throw settingsErr;
 
   if ((settingsCount ?? 0) === 0) {
     const entries = Object.entries(DEFAULT_SETTINGS).map(([key, data]) => ({
       key,
       data,
     }));
-    await supabaseAdmin
+    const { error: upsertErr } = await supabaseAdmin
       .from('site_settings')
       .upsert(entries, { onConflict: 'key', ignoreDuplicates: true });
+    if (upsertErr) throw upsertErr;
   }
 
-  const { count: specCount } = await supabaseAdmin
+  const { count: specCount, error: specErr } = await supabaseAdmin
     .from('specialties')
     .select('id', { count: 'exact', head: true });
+  if (specErr) throw specErr;
 
   if ((specCount ?? 0) === 0) {
     const { data: insertedSpecs } = await supabaseAdmin

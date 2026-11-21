@@ -1,5 +1,5 @@
 import { asc, count, desc, eq } from 'drizzle-orm';
-import { db } from './index.ts';
+import { db } from './index.js';
 import {
   activityLogs,
   contactMessages,
@@ -11,9 +11,9 @@ import {
   siteSettings,
   specialties,
   users,
-} from './schema.ts';
-import { DEFAULT_SETTINGS } from './seed.ts';
-import { isSupabaseServerConfigured, supabaseAdmin } from '../lib/supabase-admin.ts';
+} from './schema.js';
+import { DEFAULT_SETTINGS } from './seed.js';
+import { isSupabaseServerConfigured, supabaseAdmin } from '../lib/supabase-admin.js';
 import {
   ActivityLogItem,
   AdminUserItem,
@@ -25,7 +25,7 @@ import {
   RecruitmentApplicationItem,
   SiteSettingsBundle,
   Specialty,
-} from '../types/lab.ts';
+} from '../types/lab.js';
 
 function mapSpecialty(row: Record<string, unknown>): Specialty {
   return {

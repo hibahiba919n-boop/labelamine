@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 import { Request, Response, NextFunction } from 'express';
 import { and, count, eq, ne } from 'drizzle-orm';
-import { db } from '../db/index.ts';
-import { users } from '../db/schema.ts';
-import { isSupabaseServerConfigured, supabaseAdmin } from '../lib/supabase-admin.ts';
+import { db } from '../db/index.js';
+import { users } from '../db/schema.js';
+import { isSupabaseServerConfigured, supabaseAdmin } from '../lib/supabase-admin.js';
 
 export interface AdminUserRecord {
   id: number;

@@ -74,7 +74,14 @@ export function LabProvider({ children }: { children: ReactNode }) {
       setError(null);
       const res = await fetch('/api/public/bootstrap');
       if (!res.ok) {
-        throw new Error('Erreur lors du chargement des données du laboratoire.');
+        let msg = 'Erreur lors du chargement des données du laboratoire.';
+        try {
+          const errJson = await res.json();
+          if (errJson?.error) msg = errJson.error;
+        } catch {
+          // Non-JSON error response
+        }
+        throw new Error(msg);
       }
       const json: PublicBootstrapPayload = await res.json();
       setData(json);
